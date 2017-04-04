@@ -87,6 +87,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         self.m_o_cvimage = cls.cv_image.CCVWatershed()
 
+        self.m_n_overlay_alpha = 50
         self.m_parent = parent
 
         self.m_uiface = parent.uiface
@@ -103,8 +104,14 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         self.m_uiface.action_ViewWatershed.triggered.connect(self.action_ViewWatershed)
         self.m_uiface.action_ViewWatershed.changed.connect(self.update_ui)
 
-        self.m_uiface.treewidget_layer.currentItemChanged.connect(self.currentItemChanged)
+        self.m_uiface.slider_overlay.valueChanged.connect(self.slider_valueChanged)
+        self.m_uiface.slider_r.valueChanged.connect(self.slider_valueChanged_color)
+        self.m_uiface.slider_g.valueChanged.connect(self.slider_valueChanged_color)
+        self.m_uiface.slider_b.valueChanged.connect(self.slider_valueChanged_color)
+
+        self.m_uiface.treewidget_layer.currentItemChanged.connect(self.treewidget_currentItemChanged)
         self.m_uiface.treewidget_layer.itemDoubleClicked.connect(self.itemDoubleClicked)
+
 
         self.layer_widget_init()
 
@@ -160,7 +167,10 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         o_widget.setCurrentItem(o_widget.topLevelItem(0))
 
+    # ------------------------------------------------------------------------
     def get_current_layer(self):
+        """
+        """
 
         o_widget = self.m_uiface.treewidget_layer
         o_item = o_widget.currentItem()
@@ -184,14 +194,14 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         if self.m_uiface.action_ViewOriginal.isChecked() is True:
             alpha = 1.0
         elif self.m_uiface.action_ViewOverlay.isChecked() is True:
-            alpha = 0.5
+            alpha = (100 - self.m_n_overlay_alpha) / 100.0
         else:
             alpha = 0.0
 
         cvimage_result = self.m_o_cvimage.watershed(alpha)
 
         if cvimage_result is not None:
-            o_pixmap = cls.cv_image.conv_cvimage_to_pixmap(cvimage_result)
+            o_pixmap = conv_cvimage_to_pixmap(cvimage_result)
             self.setPixmap(o_pixmap)
 
     def update_pin(self):
@@ -218,7 +228,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                 )
 
                 self.m_o_cvimage.marker_set(
-                    o_point,
+                    o_point.x(), o_point.y(),
                     n_layer_index
                 )
             n_layer_index += 1
@@ -237,6 +247,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                 list_color.append(Qt.QColor(0, 0, 0))
             else:
                 list_color.append(o_layer_info.m_o_color)
+                o_layer.setBackground(0, o_layer_info.m_brush)
                 for o_pin in self.iter_pin(o_layer):
                     o_gitem = o_pin.data(0, QtCore.Qt.UserRole)
                     o_gitem.setPen(o_layer_info.m_pin_pen)
@@ -340,8 +351,25 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                         return o_pin
         return None
 
-    def dropEvent(self, event):
-        print(event)
+    def slider_valueChanged(self, value):
+        self.m_n_overlay_alpha = value
+        self.filter_watershed()
+
+    def slider_valueChanged_color(self, value):
+        o_layer = self.get_current_layer()
+        if o_layer is not None:
+            o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
+            if o_layer_info is not None:
+                o_layer_info.set_color(
+                    Qt.QColor(
+                        self.m_uiface.slider_r.value(),
+                        self.m_uiface.slider_g.value(),
+                        self.m_uiface.slider_b.value()
+                    )
+                )
+
+        self.update_color()
+        self.filter_watershed()
 
     def action_FileOpen(self):
         """ファイル入力
@@ -528,7 +556,26 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             self.append_pin(o_layer, event.pos())
             self.update_pin()
 
+    def treewidget_currentItemChanged(self, current, previous):
+
+        o_layer = self.get_current_layer()
+        if o_layer is not None:
+            o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
+            if o_layer_info is not None:
+
+                self.m_uiface.lineedit_name.setText(o_layer.text(1))
+                self.m_uiface.slider_r.valueChanged.disconnect(self.slider_valueChanged_color)
+                self.m_uiface.slider_g.valueChanged.disconnect(self.slider_valueChanged_color)
+                self.m_uiface.slider_b.valueChanged.disconnect(self.slider_valueChanged_color)
+                self.m_uiface.slider_r.setSliderPosition(o_layer_info.m_o_color.red())
+                self.m_uiface.slider_g.setSliderPosition(o_layer_info.m_o_color.green())
+                self.m_uiface.slider_b.setSliderPosition(o_layer_info.m_o_color.blue())
+                self.m_uiface.slider_r.valueChanged.connect(self.slider_valueChanged_color)
+                self.m_uiface.slider_g.valueChanged.connect(self.slider_valueChanged_color)
+                self.m_uiface.slider_b.valueChanged.connect(self.slider_valueChanged_color)
+
     def currentItemChanged(self, current, previous):
+
         if current is not None:
             o_item = current.data(0, QtCore.Qt.UserRole)
             if isinstance(o_item, CGPinItem) is True:
@@ -578,6 +625,31 @@ def edit_layer_information_color(o_layer):
 
     else:
         return False
+
+
+# ============================================================================
+def conv_cvimage_to_pixmap(cvimage_src):
+    """OpenCV画像からQPixmapに変換
+
+    Args:
+        cvimage_src (cv2::image):
+    """
+
+    # 色情報の並びを変更（BGR to RGB）
+    cvimage_dst = cls.cv_image.colororder_bgr_to_rgb(cvimage_src)
+
+    o_image = Qt.QImage(
+        cvimage_dst,
+        cvimage_dst.shape[1],
+        cvimage_dst.shape[0],
+        cvimage_dst.shape[1] * 3,
+        Qt.QImage.Format_RGB888
+    )
+
+    result_o_pixmap = Qt.QPixmap()
+    result_o_pixmap.convertFromImage(o_image)
+
+    return result_o_pixmap
 
 
 

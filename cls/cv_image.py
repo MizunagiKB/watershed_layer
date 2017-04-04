@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-    @brief OpenCVのイメージ管理用クラス
+    @brief OpenCV3のラッパークラス
     @author MizunagiKB
 """
-import PyQt5
-import PyQt5.Qt
-
 import cv2
 import numpy
 
@@ -20,7 +17,7 @@ class CCVWatershed(object):
         """
 
         self.m_cvimage = None
-        self.m_size = PyQt5.Qt.QSize(0, 0)
+        self.m_size = (0, 0)
         self.m_cvimage_maker = None
         self.m_narray_color = None
 
@@ -47,7 +44,7 @@ class CCVWatershed(object):
         """
 
         self.m_cvimage = cv2.imread(image_pathname)
-        self.m_size = PyQt5.Qt.QSize(
+        self.m_size = (
             self.m_cvimage.shape[1],
             self.m_cvimage.shape[0]
         )
@@ -63,28 +60,27 @@ class CCVWatershed(object):
 
         if self.m_cvimage is not None:
             self.m_cvimage_maker = numpy.zeros(
-                (self.m_size.height(), self.m_size.width()),
+                (self.m_size[1], self.m_size[0]),
                 numpy.int32
             )
 
-    def marker_set(self, _o_point, maker_index):
+    def marker_set(self, nx, ny, marker_index):
         """Watershed用のマーカーをセット
 
         Args:
-            o_point (QPoint):
+            nx (int):
+            ny (int):
             maker_index (int):
 
         Returns:
             None:
         """
 
-        o_point = PyQt5.Qt.QPoint(int(_o_point.x()), int(_o_point.y()))
-
         cv2.rectangle(
             self.m_cvimage_maker,
-            (o_point.x() - 1, o_point.y() - 1),
-            (o_point.x() + 1, o_point.y() + 1),
-            maker_index
+            (int(nx) - 1, int(ny) - 1),
+            (int(nx) + 1, int(ny) + 1),
+            marker_index
         )
 
     def watershed(self, alpha):
@@ -120,28 +116,14 @@ class CCVWatershed(object):
 
 
 # ============================================================================
-def conv_cvimage_to_pixmap(cvimage_src):
-    """OpenCV画像からQPixmapに変換
-    """
+def colororder_bgr_to_rgb(cvimage):
 
-    # BGR to RGB
-    tpl_cvimage_bgr = cv2.split(cvimage_src)
-    cvimage_rgb = cv2.merge(
-        (tpl_cvimage_bgr[2], tpl_cvimage_bgr[1], tpl_cvimage_bgr[0])
+    tpl_cvimage = cv2.split(cvimage)
+    result_cvimage = cv2.merge(
+        (tpl_cvimage[2], tpl_cvimage[1], tpl_cvimage[0])
     )
 
-    o_image = PyQt5.Qt.QImage(
-        cvimage_rgb,
-        cvimage_rgb.shape[1],
-        cvimage_rgb.shape[0],
-        cvimage_rgb.shape[1] * 3,
-        PyQt5.Qt.QImage.Format_RGB888
-    )
-
-    result_pixmap = PyQt5.Qt.QPixmap()
-    result_pixmap.convertFromImage(o_image)
-
-    return result_pixmap
+    return result_cvimage
 
 
 if __name__ == "__main__":
