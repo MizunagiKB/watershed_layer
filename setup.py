@@ -12,7 +12,7 @@ if sys.platform == "win32":
     BASE = None
 
 BUILD_EXE_OPTIONS = {
-    "packages": ["os", "codecs", "configparser", "encodings", "subprocess"],
+    "packages": ["cv2", "numpy", "os", "codecs", "configparser", "encodings", "subprocess"],
     "excludes": ["tkinter"],
     "include_files": []
 }
