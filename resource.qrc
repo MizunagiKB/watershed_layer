@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="res">
+    <file>res/folder_picture.png</file>
+    <file>res/disk_multiple.png</file>
+    <file>res/picture_save.png</file>
+    <file>res/color_wheel.png</file>
+    <file>res/lightning.png</file>
+    <file>res/palette.png</file>
+    <file>res/arrow_refresh.png</file>
+    <file>res/disk.png</file>
+    <file>res/eye.png</file>
+    <file>res/folder.png</file>
+    <file>res/image_add.png</file>
+    <file>res/image_delete.png</file>
+    <file>res/image_edit.png</file>
+    <file>res/image.png</file>
+  </qresource>
+</RCC>
