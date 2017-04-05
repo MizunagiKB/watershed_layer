@@ -28,10 +28,10 @@ class CGView(QtWidgets.QGraphicsView):
             QtWidgets.QGraphicsView.FullViewportUpdate
         )
 
-        o_gitem = cls.graphics_item.CGWatershedItem(parent)
+        self.m_o_gitem = cls.graphics_item.CGWatershedItem(parent)
 
         o_gscene = QtWidgets.QGraphicsScene()
-        o_gscene.addItem(o_gitem)
+        o_gscene.addItem(self.m_o_gitem)
 
         self.setScene(o_gscene)
 
@@ -39,6 +39,28 @@ class CGView(QtWidgets.QGraphicsView):
         o_pixmap.fill(QtGui.QColor(31, 37, 43))
 
         self.setBackgroundBrush(QtGui.QBrush(o_pixmap))
+
+    def keyPressEvent(self, event):
+        super(CGView, self).keyPressEvent(event)
+
+        if event.key() == 0x20:
+            self.m_o_gitem.m_b_dragging = True
+            self.setDragMode(
+                QtWidgets.QGraphicsView.ScrollHandDrag
+            )
+        elif event.key() == 0x1000003:
+            list_gitem = [gitem for gitem in self.m_o_gitem.iter_selected_pin()]
+            for gitem in list_gitem:
+                self.m_o_gitem.remove_pin(gitem)
+                self.m_o_gitem.update_pin()
+
+    def keyReleaseEvent(self, event):
+        super(CGView, self).keyReleaseEvent(event)
+
+        self.setDragMode(
+            QtWidgets.QGraphicsView.NoDrag
+        )
+        self.m_o_gitem.m_b_dragging = False
 
     def wheelEvent(self, event):
         """ホイール操作による拡大縮小処理

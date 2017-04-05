@@ -4,7 +4,7 @@
     @author MizunagiKB
 """
 # ------------------------------------------------------------------ import(s)
-from PyQt5 import Qt, QtCore, QtWidgets
+from PyQt5 import Qt, QtCore, QtWidgets, QtGui
 
 import yaml
 
@@ -53,13 +53,13 @@ class CGPinItem(QtWidgets.QGraphicsRectItem):
     """Watershedの基準点となる、Pin(Marker)クラス
     """
 
-    def focusInEvent(self, event):
-        """フォーカス取得イベント
+    def mousePressEvent(self, event):
+        """マウスボタン（Press）イベント
 
         Args:
-            event:
+            event (QGraphicsSceneMouseEvent):
         """
-        super(CGPinItem, self).focusInEvent(event)
+        super(CGPinItem, self).mousePressEvent(event)
 
         o_gitem = self.parentItem().get_current_tree_item(self)
         if o_gitem is not None:
@@ -68,6 +68,9 @@ class CGPinItem(QtWidgets.QGraphicsRectItem):
 
     def mouseReleaseEvent(self, event):
         """マウスボタン（Release）イベント
+
+        Args:
+            event (QGraphicsSceneMouseEvent):
         """
         super(CGPinItem, self).mouseReleaseEvent(event)
 
@@ -87,8 +90,9 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         self.m_o_cvimage = cls.cv_image.CCVWatershed()
 
+        self.m_b_dragging = False
         self.m_n_overlay_alpha = 50
-        self.m_parent = parent
+        self.m_o_parent = parent
 
         self.m_uiface = parent.uiface
         self.m_uiface.action_FileOpen.triggered.connect(self.action_FileOpen)
@@ -109,9 +113,13 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         self.m_uiface.slider_g.valueChanged.connect(self.slider_valueChanged_color)
         self.m_uiface.slider_b.valueChanged.connect(self.slider_valueChanged_color)
 
-        self.m_uiface.treewidget_layer.currentItemChanged.connect(self.treewidget_currentItemChanged)
+        self.m_uiface.lineedit_name.textChanged.connect(self.lineedit_textChanged)
+
+        self.m_uiface.treewidget_layer.currentItemChanged.connect(self.currentItemChanged)
         self.m_uiface.treewidget_layer.itemDoubleClicked.connect(self.itemDoubleClicked)
 
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, False)
+        self.setFlag(QtWidgets.QGraphicsItem.ItemIsFocusable, False)
 
         self.layer_widget_init()
 
@@ -136,6 +144,18 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             yield o_layer.child(n_pin_index)
 
     # ------------------------------------------------------------------------
+    def iter_selected_pin(self):
+        """TreeWidget(pin)に設定されているdata取得
+        """
+
+        o_widget = self.m_uiface.treewidget_layer
+
+        for o_item in o_widget.selectedItems():
+            gitem = o_item.data(0, QtCore.Qt.UserRole)
+            if isinstance(gitem, CGPinItem) is True:
+                yield o_item
+
+    # ------------------------------------------------------------------------
     def layer_widget_init(self):
         """レイヤーの初期化
         """
@@ -153,14 +173,17 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             )
 
             o_layer = QtWidgets.QTreeWidgetItem()
-            o_layer.setText(0, "[]")
+            o_layer.setText(0, "")
             if n_index == 0:
                 o_layer.setText(1, "Base")
                 o_layer.setData(0, QtCore.Qt.UserRole, None)
             else:
                 o_layer.setText(1, "Layer %d" % (n_index + 0,))
                 o_layer.setData(0, QtCore.Qt.UserRole, o_layer_info)
-                o_layer.setBackground(0, o_layer_info.m_brush)
+
+                o_pixmap = QtGui.QPixmap(48, 16)
+                o_pixmap.fill(o_layer_info.m_o_color)
+                o_layer.setIcon(0, QtGui.QIcon(o_pixmap))
 
             o_widget.addTopLevelItem(o_layer)
             n_index += 1
@@ -174,13 +197,14 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         o_widget = self.m_uiface.treewidget_layer
         o_item = o_widget.currentItem()
-        o_item_data = o_item.data(0, QtCore.Qt.UserRole)
-        if isinstance(o_item_data, CLayerInformation) is True:
-            return o_item
-        elif o_item_data is not None:
-            return o_item.parent()
-        else:
-            return None
+        if o_item is not None:
+            o_item_data = o_item.data(0, QtCore.Qt.UserRole)
+            if isinstance(o_item_data, CLayerInformation) is True:
+                return o_item
+            elif o_item_data is not None:
+                return o_item.parent()
+
+        return None
 
     def load(self, image_pathname):
         self.remove_all_pin()
@@ -247,7 +271,11 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                 list_color.append(Qt.QColor(0, 0, 0))
             else:
                 list_color.append(o_layer_info.m_o_color)
-                o_layer.setBackground(0, o_layer_info.m_brush)
+
+                o_pixmap = QtGui.QPixmap(48, 16)
+                o_pixmap.fill(o_layer_info.m_o_color)
+                o_layer.setIcon(0, QtGui.QIcon(o_pixmap))
+
                 for o_pin in self.iter_pin(o_layer):
                     o_gitem = o_pin.data(0, QtCore.Qt.UserRole)
                     o_gitem.setPen(o_layer_info.m_pin_pen)
@@ -289,9 +317,9 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             o_gitem.setParentItem(self)
             o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
             o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
-            o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsFocusable, True)
-            o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemSendsScenePositionChanges, True)
-            o_gitem.installSceneEventFilter(self)
+            o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsFocusable, False)
+#            o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemSendsScenePositionChanges, True)
+#            o_gitem.installSceneEventFilter(self)
 
             o_pin = QtWidgets.QTreeWidgetItem()
             o_pin.setText(1, "Pin")
@@ -375,63 +403,64 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         """ファイル入力
         """
 
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self.m_parent,
-            "Open Yaml File",
-            "ws_layer Supported File", "Yaml files (*.yml *.yaml)"
-        )
+        o_dlg = QtWidgets.QFileDialog(self.m_o_parent)
+        o_dlg.setNameFilter("Watershed files (*.wshead)")
+        o_dlg.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
+        o_dlg.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        o_dlg.setModal(True)
 
-        if path:
+        if o_dlg.exec() == QtWidgets.QDialog.Accepted:
+            for pathname in o_dlg.selectedFiles():
+                with open(pathname, "rb") as h_reader:
+                    list_savedata = yaml.load(h_reader.read())
 
-            with open(path, "rb") as h_reader:
-                list_savedata = yaml.load(h_reader.read())
+                    self.remove_all_pin()
 
-                self.remove_all_pin()
+                    o_widget = self.m_uiface.treewidget_layer
+                    o_widget.clear()
+                    o_widget.setColumnCount(2)
 
-                o_widget = self.m_uiface.treewidget_layer
-                o_widget.clear()
-                o_widget.setColumnCount(2)
+                    n_index = 0
+                    for dict_layer_info in list_savedata:
+                        dict_color = dict_layer_info["color"]
+                        o_layer_info = CLayerInformation(
+                            Qt.QColor(dict_color["r"], dict_color["g"], dict_color["b"])
+                        )
 
-                n_index = 0
-                for dict_layer_info in list_savedata:
-                    dict_color = dict_layer_info["color"]
-                    o_layer_info = CLayerInformation(
-                        Qt.QColor(dict_color["r"], dict_color["g"], dict_color["b"])
-                    )
+                        o_layer = QtWidgets.QTreeWidgetItem()
+                        o_layer.setText(0, "[]")
+                        o_layer.setText(1, dict_layer_info["name"])
+                        o_layer.setData(
+                            0,
+                            QtCore.Qt.UserRole,
+                            o_layer_info
+                        )
+                        o_layer.setBackground(0, o_layer_info.m_brush)
 
-                    o_layer = QtWidgets.QTreeWidgetItem()
-                    o_layer.setText(0, "[]")
-                    o_layer.setText(1, dict_layer_info["name"])
-                    o_layer.setData(
-                        0,
-                        QtCore.Qt.UserRole,
-                        o_layer_info
-                    )
-                    o_layer.setBackground(0, o_layer_info.m_brush)
+                        for dict_pos in dict_layer_info["list_pin"]:
+                            o_pos = Qt.QPoint(dict_pos["x"], dict_pos["y"])
+                            self.append_pin(o_layer, o_pos)
 
-                    for dict_pos in dict_layer_info["list_pin"]:
-                        o_pos = Qt.QPoint(dict_pos["x"], dict_pos["y"])
-                        self.append_pin(o_layer, o_pos)
+                        o_widget.addTopLevelItem(o_layer)
+                        n_index += 1
 
-                    o_widget.addTopLevelItem(o_layer)
-                    n_index += 1
+                    o_widget.setCurrentItem(o_widget.topLevelItem(0))
 
-                o_widget.setCurrentItem(o_widget.topLevelItem(0))
-
-                self.update_color()
-                self.update_pin()
+                    self.update_color()
+                    self.update_pin()
 
 
     def action_FileSaveAs(self):
         """ファイル出力
         """
-        path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self.m_parent,
-            "Save Picture File",
-            "export.yaml"
-        )
 
-        if path:
+        o_dlg = QtWidgets.QFileDialog(self.m_o_parent)
+        o_dlg.setNameFilter("Watershed files (*.wshead)")
+        o_dlg.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        o_dlg.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        o_dlg.setModal(True)
+
+        if o_dlg.exec() == QtWidgets.QDialog.Accepted:
             list_savedata = []
             for o_layer in self.iter_layer():
                 dict_layer_info = {
@@ -464,44 +493,50 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
                 list_savedata.append(dict_layer_info)
 
-            with open(path, "wb") as h_writer:
-                h_writer.write(
-                    yaml.dump(list_savedata, encoding="utf-8")
-                )
+            for pathname in o_dlg.selectedFiles():
+                with open(pathname, "wb") as h_writer:
+                    h_writer.write(
+                        yaml.dump(list_savedata, encoding="utf-8")
+                    )
+                break
 
     def action_FileImportPicture(self):
         """画像の読み込み処理
         """
 
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            None,
-            "Open Yaml File",
-            "ws_layer Supported File", "Yaml files (*.jpg *.jpeg *.png)"
-        )
+        o_dlg = QtWidgets.QFileDialog(self.m_o_parent)
+        o_dlg.setNameFilter("Picture files (*.jpg *.jpeg *.png)")
+        o_dlg.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
+        o_dlg.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        o_dlg.setModal(True)
 
-        if path:
-            self.load(path)
+        if o_dlg.exec() == QtWidgets.QDialog.Accepted:
+
+            for pathname in o_dlg.selectedFiles():
+                self.load(pathname)
+                break
 
     def action_FileExportPicture(self):
         """ファイル出力
         """
-        path, _ = QtWidgets.QFileDialog.getSaveFileName(
-            None,
-            "Save Picture File",
-            "export.png"
-        )
+        o_dlg = QtWidgets.QFileDialog(self.m_o_parent)
+        o_dlg.setNameFilter("Picture files (*.jpg *.jpeg *.png)")
+        o_dlg.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        o_dlg.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
+        o_dlg.setModal(True)
 
-        if path:
+        if o_dlg.exec() == QtWidgets.QDialog.Accepted:
+            for pathname in o_dlg.selectedFiles():
+                if self.m_uiface.action_ViewOriginal.isChecked() is True:
+                    alpha = 1.0
+                elif self.m_uiface.action_ViewOverlay.isChecked() is True:
+                    alpha = (100 - self.m_n_overlay_alpha) / 100.0
+                else:
+                    alpha = 0.0
 
-            if self.m_uiface.action_ViewOriginal.isChecked() is True:
-                alpha = 1.0
-            elif self.m_uiface.action_ViewOverlay.isChecked() is True:
-                alpha = 0.5
-            else:
-                alpha = 0.0
-
-            cvimage = self.m_o_cvimage.watershed(alpha)
-            self.m_o_cvimage.save(path, cvimage)
+                cvimage = self.m_o_cvimage.watershed(alpha)
+                self.m_o_cvimage.save(pathname, cvimage)
+                break
 
     def action_ViewOriginal(self):
         self.m_uiface.action_ViewOriginal.setChecked(True)
@@ -521,27 +556,6 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         self.m_uiface.action_ViewWatershed.setChecked(True)
         self.filter_watershed()
 
-    def keyPressEvent(self, event):
-        """キーボード入力イベント
-
-        Args:
-            evt (QKeyEvent):
-                キーイベント
-        """
-
-        if event.key() == 0x20:
-            pass
-        elif event.key() == 0x1000003:
-            o_gitem = self.focusItem()
-            if isinstance(o_gitem, CGPinItem) is True:
-                # deleteキーで削除
-                self.remove_pin(self.get_current_tree_item(o_gitem))
-                self.update_pin()
-
-    def keyReleaseEvent(self, event):
-        if event.key() == 0x20:
-            pass
-
     def mousePressEvent(self, event):
         """
         Args:
@@ -550,20 +564,27 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         super(CGWatershedItem, self).mousePressEvent(event)
 
-        if event.button() == QtCore.Qt.LeftButton:
-            o_layer = self.get_current_layer()
+        if self.m_b_dragging is not True:
+            if event.button() == QtCore.Qt.LeftButton:
+                o_layer = self.get_current_layer()
+                self.append_pin(o_layer, event.pos())
+                self.update_pin()
 
-            self.append_pin(o_layer, event.pos())
-            self.update_pin()
+    def lineedit_textChanged(self, text):
+        o_layer = self.get_current_layer()
+        if o_layer is not None:
+            o_layer.setText(1, text)
 
-    def treewidget_currentItemChanged(self, current, previous):
-
+    def currentItemChanged(self, current, previous):
         o_layer = self.get_current_layer()
         if o_layer is not None:
             o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
-            if o_layer_info is not None:
+            if isinstance(o_layer_info, CLayerInformation) is True:
 
+                self.m_uiface.lineedit_name.textChanged.disconnect(self.lineedit_textChanged)
                 self.m_uiface.lineedit_name.setText(o_layer.text(1))
+                self.m_uiface.lineedit_name.textChanged.connect(self.lineedit_textChanged)
+
                 self.m_uiface.slider_r.valueChanged.disconnect(self.slider_valueChanged_color)
                 self.m_uiface.slider_g.valueChanged.disconnect(self.slider_valueChanged_color)
                 self.m_uiface.slider_b.valueChanged.disconnect(self.slider_valueChanged_color)
@@ -573,8 +594,6 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                 self.m_uiface.slider_r.valueChanged.connect(self.slider_valueChanged_color)
                 self.m_uiface.slider_g.valueChanged.connect(self.slider_valueChanged_color)
                 self.m_uiface.slider_b.valueChanged.connect(self.slider_valueChanged_color)
-
-    def currentItemChanged(self, current, previous):
 
         if current is not None:
             o_item = current.data(0, QtCore.Qt.UserRole)
@@ -586,6 +605,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                             o_pin_data.setSelected(False)
 
                 o_item.setSelected(True)
+
 
     def itemDoubleClicked(self, item, column):
         o_item = item.data(0, QtCore.Qt.UserRole)
@@ -604,6 +624,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         if o_layer is not None:
             if edit_layer_information_color(o_layer) is True:
+                self.currentItemChanged(o_layer, o_layer)
                 self.update_color()
 
 
@@ -614,12 +635,11 @@ def edit_layer_information_color(o_layer):
 
     o_dlg = QtWidgets.QColorDialog()
     o_dlg.setCurrentColor(o_layer_info.m_o_color)
+    o_dlg.setModal(True)
 
     if o_dlg.exec() == QtWidgets.QDialog.Accepted:
 
         o_layer_info.set_color(o_dlg.selectedColor())
-
-        o_layer.setBackground(0, o_layer_info.m_brush)
 
         return True
 

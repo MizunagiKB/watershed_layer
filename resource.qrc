@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="res">
+    <file>res/shape_square_edit.png</file>
+    <file>res/shape_square.png</file>
+    <file>res/layers.png</file>
     <file>res/folder_picture.png</file>
     <file>res/disk_multiple.png</file>
     <file>res/picture_save.png</file>

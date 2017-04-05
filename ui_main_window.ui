@@ -10,14 +10,24 @@
     <height>768</height>
    </rect>
   </property>
+  <property name="acceptDrops">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>watershed_region</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockwidget_layer">
+   <property name="windowIcon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/res/res/layers.png</normaloff>:/res/res/layers.png</iconset>
+   </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   </property>
+   <property name="windowTitle">
+    <string>Layer Information</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
@@ -105,6 +115,12 @@
        <property name="alternatingRowColors">
         <bool>false</bool>
        </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>16</height>
+        </size>
+       </property>
        <property name="verticalScrollMode">
         <enum>QAbstractItemView::ScrollPerItem</enum>
        </property>
@@ -124,10 +140,13 @@
         <bool>true</bool>
        </attribute>
        <attribute name="headerDefaultSectionSize">
-        <number>32</number>
+        <number>64</number>
        </attribute>
        <attribute name="headerHighlightSections">
         <bool>false</bool>
+       </attribute>
+       <attribute name="headerMinimumSectionSize">
+        <number>32</number>
        </attribute>
        <attribute name="headerShowSortIndicator" stdset="0">
         <bool>false</bool>
@@ -187,7 +206,7 @@
           <number>64</number>
          </property>
          <property name="readOnly">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -266,6 +285,9 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="statusTip">
+    <string/>
+   </property>
    <property name="toolButtonStyle">
     <enum>Qt::ToolButtonTextBesideIcon</enum>
    </property>
@@ -318,8 +340,17 @@
    <property name="text">
     <string>Open...</string>
    </property>
+   <property name="iconText">
+    <string notr="true">Open</string>
+   </property>
+   <property name="statusTip">
+    <string>watershedファイルの読込</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>true</bool>
    </property>
   </action>
   <action name="action_FileQuit">
@@ -341,6 +372,9 @@
    <property name="toolTip">
     <string>Save</string>
    </property>
+   <property name="statusTip">
+    <string/>
+   </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
    </property>
@@ -355,8 +389,17 @@
    <property name="toolTip">
     <string>Watershed</string>
    </property>
+   <property name="statusTip">
+    <string>Watershed画像の表示</string>
+   </property>
   </action>
   <action name="action_ViewAutoUpdate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="enabled">
     <bool>false</bool>
    </property>
@@ -367,6 +410,9 @@
    <property name="text">
     <string>ViewAutoUpdate</string>
    </property>
+   <property name="statusTip">
+    <string>プレビューの自動更新</string>
+   </property>
   </action>
   <action name="action_EditColor">
    <property name="icon">
@@ -375,6 +421,9 @@
    </property>
    <property name="text">
     <string>Color</string>
+   </property>
+   <property name="statusTip">
+    <string>レイヤーカラーの変更</string>
    </property>
   </action>
   <action name="action_FileExportPicture">
@@ -385,6 +434,9 @@
    <property name="text">
     <string>Export Picture...</string>
    </property>
+   <property name="statusTip">
+    <string>画像の出力</string>
+   </property>
   </action>
   <action name="action_FileSaveAs">
    <property name="icon">
@@ -394,6 +446,9 @@
    <property name="text">
     <string>SaveAs...</string>
    </property>
+   <property name="statusTip">
+    <string>watershedファイルに名前をつけて保存</string>
+   </property>
   </action>
   <action name="action_FileImportPicture">
    <property name="icon">
@@ -402,6 +457,9 @@
    </property>
    <property name="text">
     <string>Import Picture...</string>
+   </property>
+   <property name="statusTip">
+    <string>画像の入力</string>
    </property>
   </action>
   <action name="action_ViewOriginal">
@@ -413,6 +471,9 @@
    </property>
    <property name="toolTip">
     <string>Original</string>
+   </property>
+   <property name="statusTip">
+    <string>Original画像の表示</string>
    </property>
   </action>
   <action name="action_ViewOverlay">
@@ -427,6 +488,39 @@
    </property>
    <property name="toolTip">
     <string>Overlay</string>
+   </property>
+   <property name="statusTip">
+    <string>Original + Watershed画像の表示</string>
+   </property>
+  </action>
+  <action name="action_EditPin">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/res/res/shape_square_edit.png</normaloff>:/res/res/shape_square_edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>EditPin</string>
+   </property>
+   <property name="toolTip">
+    <string>EditPin</string>
+   </property>
+  </action>
+  <action name="action_EditPan">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/res/res/shape_square.png</normaloff>:/res/res/shape_square.png</iconset>
+   </property>
+   <property name="text">
+    <string>EditPan</string>
+   </property>
+   <property name="toolTip">
+    <string>EditPan</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
    </property>
   </action>
  </widget>
