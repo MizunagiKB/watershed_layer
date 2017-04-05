@@ -4,6 +4,8 @@
     @author MizunagiKB
 """
 # ------------------------------------------------------------------ import(s)
+import os
+
 from PyQt5 import Qt, QtCore, QtWidgets, QtGui
 
 import yaml
@@ -92,10 +94,13 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         self.m_b_dragging = False
         self.m_n_overlay_alpha = 50
+        self.m_picture_pathname = None
+        self.m_wshed_pathname = None
         self.m_o_parent = parent
 
         self.m_uiface = parent.uiface
         self.m_uiface.action_FileOpen.triggered.connect(self.action_FileOpen)
+        self.m_uiface.action_FileSave.triggered.connect(self.action_FileSave)
         self.m_uiface.action_FileSaveAs.triggered.connect(self.action_FileSaveAs)
         self.m_uiface.action_FileImportPicture.triggered.connect(self.action_FileImportPicture)
         self.m_uiface.action_FileExportPicture.triggered.connect(self.action_FileExportPicture)
@@ -206,10 +211,51 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         return None
 
-    def load(self, image_pathname):
+    def import_picture(self, picture_pathname):
         self.remove_all_pin()
-        self.m_o_cvimage.load(image_pathname)
+        self.m_o_cvimage.load(picture_pathname)
+        self.m_picture_filename = picture_pathname
         self.filter_watershed()
+
+    def save(self, wshed_pathname):
+        list_savedata = []
+        for o_layer in self.iter_layer():
+            dict_layer_info = {
+                "name": o_layer.text(1)
+            }
+            o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
+            if o_layer_info is None:
+                dict_layer_info["color"] = {
+                    "r": 0,
+                    "g": 0,
+                    "b": 0
+                }
+            else:
+                dict_layer_info["color"] = {
+                    "r": o_layer_info.m_o_color.red(),
+                    "g": o_layer_info.m_o_color.green(),
+                    "b": o_layer_info.m_o_color.blue()
+                }
+            list_pin = []
+            for o_pin in self.iter_pin(o_layer):
+                o_gitem = o_pin.data(0, QtCore.Qt.UserRole)
+                list_pin.append(
+                    {
+                        "x": o_gitem.rect().x(),
+                        "y": o_gitem.rect().y()
+                    }
+                )
+
+            dict_layer_info["list_pin"] = list_pin
+
+            list_savedata.append(dict_layer_info)
+
+        with open(wshed_pathname, "wb") as h_writer:
+            h_writer.write(
+                yaml.dump(list_savedata, encoding="utf-8")
+            )
+            if self.m_wshed_pathname is None:
+                self.m_wshed_pathname = wshed_pathname
 
     def filter_watershed(self):
         """画像情報の反映処理
@@ -404,7 +450,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         """
 
         o_dlg = QtWidgets.QFileDialog(self.m_o_parent)
-        o_dlg.setNameFilter("Watershed files (*.wshead)")
+        o_dlg.setNameFilter("Watershed files (*.wshed)")
         o_dlg.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
         o_dlg.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
         o_dlg.setModal(True)
@@ -420,7 +466,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                     o_widget.clear()
                     o_widget.setColumnCount(2)
 
-                    n_index = 0
+                    n_layer_index = 0
                     for dict_layer_info in list_savedata:
                         dict_color = dict_layer_info["color"]
                         o_layer_info = CLayerInformation(
@@ -428,76 +474,57 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                         )
 
                         o_layer = QtWidgets.QTreeWidgetItem()
-                        o_layer.setText(0, "[]")
-                        o_layer.setText(1, dict_layer_info["name"])
-                        o_layer.setData(
-                            0,
-                            QtCore.Qt.UserRole,
-                            o_layer_info
-                        )
-                        o_layer.setBackground(0, o_layer_info.m_brush)
+                        if n_layer_index == 0:
+                            o_layer.setText(0, "")
+                            o_layer.setText(1, "Base")
+                            o_layer.setData(0, QtCore.Qt.UserRole, None)
+                        else:
+                            o_pixmap = QtGui.QPixmap(48, 16)
+                            o_pixmap.fill(o_layer_info.m_o_color)
+                            o_layer.setIcon(0, QtGui.QIcon(o_pixmap))
+
+                            o_layer.setText(0, "")
+                            o_layer.setText(1, dict_layer_info["name"])
+                            o_layer.setData(
+                                0,
+                                QtCore.Qt.UserRole,
+                                o_layer_info
+                            )
 
                         for dict_pos in dict_layer_info["list_pin"]:
                             o_pos = Qt.QPoint(dict_pos["x"], dict_pos["y"])
                             self.append_pin(o_layer, o_pos)
 
                         o_widget.addTopLevelItem(o_layer)
-                        n_index += 1
+                        n_layer_index += 1
 
                     o_widget.setCurrentItem(o_widget.topLevelItem(0))
 
                     self.update_color()
                     self.update_pin()
 
+                    self.m_wshed_pathname = pathname
+                    break
+
+    def action_FileSave(self):
+        if self.m_wshed_pathname is not None and os.path.exists(self.m_wshed_pathname) is True:
+            self.save(self.m_wshed_pathname)
+        else:
+            self.action_FileSaveAs()
 
     def action_FileSaveAs(self):
         """ファイル出力
         """
 
         o_dlg = QtWidgets.QFileDialog(self.m_o_parent)
-        o_dlg.setNameFilter("Watershed files (*.wshead)")
+        o_dlg.setNameFilter("Watershed files (*.wshed)")
         o_dlg.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         o_dlg.setOption(QtWidgets.QFileDialog.DontUseNativeDialog, True)
         o_dlg.setModal(True)
 
         if o_dlg.exec() == QtWidgets.QDialog.Accepted:
-            list_savedata = []
-            for o_layer in self.iter_layer():
-                dict_layer_info = {
-                    "name": o_layer.text(1)
-                }
-                o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
-                if o_layer_info is None:
-                    dict_layer_info["color"] = {
-                        "r": 0,
-                        "g": 0,
-                        "b": 0
-                    }
-                else:
-                    dict_layer_info["color"] = {
-                        "r": o_layer_info.m_o_color.red(),
-                        "g": o_layer_info.m_o_color.green(),
-                        "b": o_layer_info.m_o_color.blue()
-                    }
-                list_pin = []
-                for o_pin in self.iter_pin(o_layer):
-                    o_gitem = o_pin.data(0, QtCore.Qt.UserRole)
-                    list_pin.append(
-                        {
-                            "x": o_gitem.rect().x(),
-                            "y": o_gitem.rect().y()
-                        }
-                    )
-
-                dict_layer_info["list_pin"] = list_pin
-
-                list_savedata.append(dict_layer_info)
-
             for pathname in o_dlg.selectedFiles():
-                with open(pathname, "wb") as h_writer:
-                    h_writer.write(
-                        yaml.dump(list_savedata, encoding="utf-8")
-                    )
+                self.save(pathname)
                 break
 
     def action_FileImportPicture(self):
@@ -513,7 +540,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         if o_dlg.exec() == QtWidgets.QDialog.Accepted:
 
             for pathname in o_dlg.selectedFiles():
-                self.load(pathname)
+                self.import_picture(pathname)
                 break
 
     def action_FileExportPicture(self):

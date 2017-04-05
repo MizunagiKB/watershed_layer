@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="acceptDrops">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="windowTitle">
    <string>watershed_region</string>
@@ -48,6 +48,9 @@
      </property>
      <item>
       <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -69,8 +72,14 @@
        </item>
        <item row="0" column="1">
         <widget class="QSlider" name="slider_overlay">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="maximum">
           <number>100</number>
+         </property>
+         <property name="singleStep">
+          <number>1</number>
          </property>
          <property name="value">
           <number>50</number>
@@ -92,6 +101,9 @@
          </property>
          <property name="tickPosition">
           <enum>QSlider::TicksBothSides</enum>
+         </property>
+         <property name="tickInterval">
+          <number>0</number>
          </property>
         </widget>
        </item>
@@ -172,6 +184,9 @@
      </item>
      <item>
       <layout class="QFormLayout" name="formLayout_3">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -226,6 +241,9 @@
        </item>
        <item row="2" column="1">
         <widget class="QSlider" name="slider_g">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="maximum">
           <number>255</number>
          </property>
@@ -246,6 +264,9 @@
        </item>
        <item row="3" column="1">
         <widget class="QSlider" name="slider_b">
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
+         </property>
          <property name="maximum">
           <number>255</number>
          </property>
@@ -264,6 +285,15 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::NoFocus</enum>
          </property>
          <property name="maximum">
           <number>255</number>
@@ -360,7 +390,7 @@
   </action>
   <action name="action_FileSave">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="resource.qrc">
