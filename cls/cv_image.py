@@ -54,7 +54,7 @@ class CCVWatershed(object):
         self.marker_clr()
 
     def save(self, image_pathname, cvimage):
-        _, ext = os.path.split(image_pathname)
+        _, ext = os.path.splitext(image_pathname)
         if ext.lower() in (".jpg", ".jpeg", ".png"):
             cv2.imwrite(image_pathname, cvimage)
         else:
