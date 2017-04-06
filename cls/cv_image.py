@@ -3,6 +3,8 @@
     @brief OpenCV3のラッパークラス
     @author MizunagiKB
 """
+import os
+
 import cv2
 import numpy
 
@@ -52,7 +54,11 @@ class CCVWatershed(object):
         self.marker_clr()
 
     def save(self, image_pathname, cvimage):
-        cv2.imwrite(image_pathname, cvimage)
+        _, ext = os.path.split(image_pathname)
+        if ext.lower() in (".jpg", ".jpeg", ".png"):
+            cv2.imwrite(image_pathname, cvimage)
+        else:
+            cv2.imwrite(image_pathname + ".png", cvimage)
 
     def marker_clr(self):
         """マーカー情報のリセット
