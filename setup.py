@@ -9,7 +9,7 @@ from cx_Freeze import setup, Executable
 
 BASE = None
 if sys.platform == "win32":
-    BASE = None
+    BASE = "Win32GUI"
 
 BUILD_EXE_OPTIONS = {
     "packages": ["cv2", "numpy", "os", "codecs", "configparser", "encodings", "subprocess"],
