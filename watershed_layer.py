@@ -3,11 +3,13 @@
     @brief Watershedによる領域分割画像の生成アプリ
     @author MizunagiKB
 """
+# ------------------------------------------------------------------ import(s)
+import os
 import sys
 
 from PyQt5 import Qt, QtWidgets
 
-import cls.graphics
+import graphics.view
 import ui_main_window
 
 
@@ -16,18 +18,19 @@ class CMainWindow(QtWidgets.QMainWindow):
     """メインウインドウクラス
     """
 
+    # ------------------------------------------------------------------------
     def __init__(self):
         """コンストラクタ
         """
 
         super(CMainWindow, self).__init__()
 
-        self.uiface = ui_main_window.Ui_MainWindow()
-        self.uiface.setupUi(self)
+        self.m_uiface = ui_main_window.Ui_MainWindow()
+        self.m_uiface.setupUi(self)
 
-        self.m_o_view = cls.graphics.CGView(self)
+        self.m_gview = graphics.view.CGView(self)
 
-        self.setCentralWidget(self.m_o_view)
+        self.setCentralWidget(self.m_gview)
 
 
 # ============================================================================
@@ -45,3 +48,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+# [EOF]

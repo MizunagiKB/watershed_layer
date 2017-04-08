@@ -18,6 +18,9 @@ ui_main_window.py: ui_main_window.ui
 resource_rc.py: resource.qrc
 	$(PYRCC) $< -o $@
 
+test:
+	$(PYTHON) utest/test_cv_image.py
+
 .PHONY: run
 run: PYUIC PYRCC
 	$(PYTHON) watershed_layer.py

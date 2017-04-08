@@ -20,7 +20,7 @@ BUILD_EXE_OPTIONS = {
 
 setup(
     name="watershed_layer",
-    version="1.0",
+    version="1.1.0",
     description="watershed (PyQt5)",
     author="@MizunagiKB",
     url="",

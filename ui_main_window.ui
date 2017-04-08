@@ -16,6 +16,9 @@
   <property name="windowTitle">
    <string>watershed_region</string>
   </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockwidget_layer">
@@ -79,7 +82,7 @@
           <number>100</number>
          </property>
          <property name="singleStep">
-          <number>1</number>
+          <number>10</number>
          </property>
          <property name="value">
           <number>50</number>
@@ -103,7 +106,7 @@
           <enum>QSlider::TicksBothSides</enum>
          </property>
          <property name="tickInterval">
-          <number>0</number>
+          <number>10</number>
          </property>
         </widget>
        </item>
@@ -174,6 +177,50 @@
         </property>
        </column>
       </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="topMargin">
+        <number>3</number>
+       </property>
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <item>
+        <widget class="QToolButton" name="tb_layer_append">
+         <property name="statusTip">
+          <string>レイヤーの追加</string>
+         </property>
+         <property name="text">
+          <string>Append</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/res/res/add.png</normaloff>:/res/res/add.png</iconset>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="tb_layer_remove">
+         <property name="statusTip">
+          <string>レイヤーの削除</string>
+         </property>
+         <property name="text">
+          <string>Remove</string>
+         </property>
+         <property name="icon">
+          <iconset resource="resource.qrc">
+           <normaloff>:/res/res/delete.png</normaloff>:/res/res/delete.png</iconset>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonTextBesideIcon</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="Line" name="line">
@@ -250,6 +297,9 @@
          <property name="pageStep">
           <number>8</number>
          </property>
+         <property name="tracking">
+          <bool>true</bool>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -272,6 +322,9 @@
          </property>
          <property name="pageStep">
           <number>8</number>
+         </property>
+         <property name="tracking">
+          <bool>true</bool>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -300,6 +353,9 @@
          </property>
          <property name="pageStep">
           <number>8</number>
+         </property>
+         <property name="tracking">
+          <bool>true</bool>
          </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -361,6 +417,46 @@
    <addaction name="action_ViewOriginal"/>
    <addaction name="action_ViewOverlay"/>
    <addaction name="action_ViewWatershed"/>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1024</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_FileOpen"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileImportPicture"/>
+    <addaction name="action_FileExportPicture"/>
+    <addaction name="action_FileSave"/>
+    <addaction name="action_FileSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="action_FileQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="action_EditColor"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="action_ViewOriginal"/>
+    <addaction name="action_ViewOverlay"/>
+    <addaction name="action_ViewWatershed"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
   </widget>
   <action name="action_FileOpen">
    <property name="icon">
@@ -523,39 +619,26 @@
     <string>Original + Watershed画像の表示</string>
    </property>
   </action>
-  <action name="action_EditPin">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/res/res/shape_square_edit.png</normaloff>:/res/res/shape_square_edit.png</iconset>
-   </property>
-   <property name="text">
-    <string>EditPin</string>
-   </property>
-   <property name="toolTip">
-    <string>EditPin</string>
-   </property>
-  </action>
-  <action name="action_EditPan">
-   <property name="icon">
-    <iconset resource="resource.qrc">
-     <normaloff>:/res/res/shape_square.png</normaloff>:/res/res/shape_square.png</iconset>
-   </property>
-   <property name="text">
-    <string>EditPan</string>
-   </property>
-   <property name="toolTip">
-    <string>EditPan</string>
-   </property>
-   <property name="shortcut">
-    <string>Space</string>
-   </property>
-  </action>
  </widget>
  <resources>
   <include location="resource.qrc"/>
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_FileQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>383</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
