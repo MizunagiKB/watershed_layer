@@ -14,7 +14,7 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>watershed_region</string>
+   <string>Watershed Layer</string>
   </property>
   <property name="animated">
    <bool>false</bool>
@@ -424,7 +424,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
