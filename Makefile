@@ -2,9 +2,10 @@
 #	Makefile for PyQt5
 #	@Author: @MizunagiKB
 #
-PYTHON = python
-PYUIC = pyuic5
-PYRCC = pyrcc5
+PYTHON		= python
+PYINSTALLER	= pyinstaller
+PYUIC		= pyuic5
+PYRCC		= pyrcc5
 
 .PHONY: all
 all: PYUIC PYRCC
@@ -21,6 +22,9 @@ resource_rc.py: resource.qrc
 test:
 	$(PYTHON) utest/test_cv_image.py
 
-.PHONY: run
+.PHONY: run build
+build:
+	$(PYINSTALLER) --noconsole --onefile watershed_layer.py
+
 run: PYUIC PYRCC
 	$(PYTHON) watershed_layer.py

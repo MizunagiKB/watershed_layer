@@ -4,24 +4,20 @@
     @author MizunagiKB
 """
 # ------------------------------------------------------------------ import(s)
-import os
 import sys
 
-from PyQt5 import Qt, QtWidgets
+from PyQt5 import QtWidgets
 
 import graphics.view
 import ui_main_window
 
 
-# ----------------------------------------------------------------------------
+# ------------------------------------------------------------------- class(s)
 class CMainWindow(QtWidgets.QMainWindow):
-    """メインウインドウクラス
-    """
+    """メインウインドウクラス"""
 
-    # ------------------------------------------------------------------------
     def __init__(self):
-        """コンストラクタ
-        """
+        """コンストラクタ"""
 
         super(CMainWindow, self).__init__()
 
@@ -33,10 +29,9 @@ class CMainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.m_gview)
 
 
-# ============================================================================
+# -------------------------------------------------------------------- main(s)
 def main():
-    """Program Entry
-    """
+    """Program Entry"""
 
     o_app = QtWidgets.QApplication(sys.argv)
 
@@ -48,7 +43,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-# [EOF]

@@ -4,35 +4,26 @@
     @author MizunagiKB
 """
 # ------------------------------------------------------------------ import(s)
-import os
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import graphics.graphics_item
 import graphics.scene
 
 
-# ----------------------------------------------------------------------------
+# ------------------------------------------------------------------- class(s)
 class CGView(QtWidgets.QGraphicsView):
-    """
-    """
+    """ """
 
-    # ------------------------------------------------------------------------
     def __init__(self, parent):
-        """コンストラクタ
-        """
+        """コンストラクタ"""
 
         super(CGView, self).__init__()
 
         self.setAcceptDrops(True)
 
-        self.setTransformationAnchor(
-            QtWidgets.QGraphicsView.AnchorUnderMouse
-        )
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
 
-        self.setViewportUpdateMode(
-            QtWidgets.QGraphicsView.FullViewportUpdate
-        )
+        self.setViewportUpdateMode(QtWidgets.QGraphicsView.FullViewportUpdate)
 
         self.setInteractive(True)
 
@@ -48,7 +39,6 @@ class CGView(QtWidgets.QGraphicsView):
 
         self.setBackgroundBrush(QtGui.QBrush(o_pixmap))
 
-    # ------------------------------------------------------------------------
     def keyPressEvent(self, event):
         """
         Args:
@@ -59,16 +49,13 @@ class CGView(QtWidgets.QGraphicsView):
 
         if event.key() == QtCore.Qt.Key_Space:
             self.m_gwatershed.m_b_dragging = True
-            self.setDragMode(
-                QtWidgets.QGraphicsView.ScrollHandDrag
-            )
+            self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
         elif event.key() in (QtCore.Qt.Key_Delete, QtCore.Qt.Key_Backspace):
             list_gitem = [gitem for gitem in self.m_gwatershed.iter_selected_pin()]
             for gitem in list_gitem:
                 self.m_gwatershed.remove_pin(gitem)
                 self.m_gwatershed.update_pin()
 
-    # ------------------------------------------------------------------------
     def keyReleaseEvent(self, event):
         """
         Args:
@@ -77,12 +64,9 @@ class CGView(QtWidgets.QGraphicsView):
 
         super(CGView, self).keyReleaseEvent(event)
 
-        self.setDragMode(
-            QtWidgets.QGraphicsView.NoDrag
-        )
+        self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
         self.m_gwatershed.m_b_dragging = False
 
-    # ------------------------------------------------------------------------
     def wheelEvent(self, event):
         """ホイール操作による拡大縮小処理
 
@@ -95,7 +79,3 @@ class CGView(QtWidgets.QGraphicsView):
         f_value += event.angleDelta().y()
         f_factor = pow(1.2, f_value / 240.0)
         self.scale(f_factor, f_factor)
-
-
-
-# [EOF]

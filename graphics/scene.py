@@ -6,22 +6,18 @@
 # ------------------------------------------------------------------ import(s)
 import os
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 
 
-# ----------------------------------------------------------------------------
+# ------------------------------------------------------------------- class(s)
 class CGScene(QtWidgets.QGraphicsScene):
-    """
-    """
+    """ """
 
-    # ------------------------------------------------------------------------
     def __init__(self, parent):
-        """コンストラクタ
-        """
+        """コンストラクタ"""
 
         super(CGScene, self).__init__(parent)
 
-    # ------------------------------------------------------------------------
     def dragEnterEvent(self, event):
         """
         Args:
@@ -31,12 +27,10 @@ class CGScene(QtWidgets.QGraphicsScene):
         if event.mimeData().hasFormat("text/uri-list") is True:
             event.acceptProposedAction()
 
-    # ------------------------------------------------------------------------
     def dragMoveEvent(self, event):
         if event.mimeData().hasFormat("text/uri-list") is True:
             event.acceptProposedAction()
 
-    # ------------------------------------------------------------------------
     def dropEvent(self, event):
         """
         Args:
@@ -51,5 +45,3 @@ class CGScene(QtWidgets.QGraphicsScene):
                     self.parent().m_gwatershed.import_picture(pathname)
                     event.acceptProposedAction()
                     break
-
-# [EOF]

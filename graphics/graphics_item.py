@@ -14,28 +14,27 @@ import yaml
 import graphics.cv_image
 
 
-# ----------------------------------------------------------------------------
+# ------------------------------------------------------------------- class(s)
 class CLayerInformation(object):
-    """
-    """
+    """ """
 
     COLOR_MUL = 0.75
 
     def __init__(self, o_color):
         self.m_pen = QtGui.QPen()
-        #self.m_pen.setStyle(QtCore.Qt.NoPen)
+        # self.m_pen.setStyle(QtCore.Qt.NoPen)
         self.m_pen.setStyle(QtCore.Qt.SolidLine)
 
         self.m_pin_pen = Qt.QPen()
-        #self.m_pen.setStyle(QtCore.Qt.NoPen)
+        # self.m_pen.setStyle(QtCore.Qt.NoPen)
         self.m_pin_pen.setStyle(QtCore.Qt.SolidLine)
 
         self.m_brush = Qt.QBrush()
-        #self.m_brush.setStyle(QtCore.Qt.NoBrush)
+        # self.m_brush.setStyle(QtCore.Qt.NoBrush)
         self.m_brush.setStyle(QtCore.Qt.SolidPattern)
 
         self.m_pin_brush = Qt.QBrush()
-        #self.m_pin_brush.setStyle(QtCore.Qt.NoBrush)
+        # self.m_pin_brush.setStyle(QtCore.Qt.NoBrush)
         self.m_pin_brush.setStyle(QtCore.Qt.SolidPattern)
 
         self.set_color(o_color)
@@ -45,7 +44,7 @@ class CLayerInformation(object):
         self.m_o_pin_color = Qt.QColor(
             o_color.red() * self.COLOR_MUL,
             o_color.green() * self.COLOR_MUL,
-            o_color.blue() * self.COLOR_MUL
+            o_color.blue() * self.COLOR_MUL,
         )
         self.m_pen.setColor(self.m_o_pin_color)
         self.m_pin_pen.setColor(Qt.QColor(255, 255, 255))
@@ -55,8 +54,7 @@ class CLayerInformation(object):
 
 # ----------------------------------------------------------------------------
 class CGPinItem(QtWidgets.QGraphicsRectItem):
-    """Watershedのマーカー位置とインデックスを保持するクラス
-    """
+    """Watershedのマーカー位置とインデックスを保持するクラス"""
 
     def mousePressEvent(self, event):
         """マウスボタン（Press）イベント
@@ -86,12 +84,10 @@ class CGPinItem(QtWidgets.QGraphicsRectItem):
 
 # ----------------------------------------------------------------------------
 class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
-    """
-    """
+    """ """
 
     def __init__(self, parent):
-        """コンストラクタ
-        """
+        """コンストラクタ"""
 
         super(CGWatershedItem, self).__init__()
 
@@ -108,26 +104,44 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         parent.m_uiface.action_FileOpen.triggered.connect(self.action_FileOpen)
         parent.m_uiface.action_FileSave.triggered.connect(self.action_FileSave)
         parent.m_uiface.action_FileSaveAs.triggered.connect(self.action_FileSaveAs)
-        parent.m_uiface.action_FileImportPicture.triggered.connect(self.action_FileImportPicture)
-        parent.m_uiface.action_FileExportPicture.triggered.connect(self.action_FileExportPicture)
+        parent.m_uiface.action_FileImportPicture.triggered.connect(
+            self.action_FileImportPicture
+        )
+        parent.m_uiface.action_FileExportPicture.triggered.connect(
+            self.action_FileExportPicture
+        )
         parent.m_uiface.action_EditColor.triggered.connect(self.action_EditColor)
 
         parent.m_uiface.action_ViewOriginal.triggered.connect(self.action_ViewOriginal)
         parent.m_uiface.action_ViewOverlay.triggered.connect(self.action_ViewOverlay)
-        parent.m_uiface.action_ViewWatershed.triggered.connect(self.action_ViewWatershed)
+        parent.m_uiface.action_ViewWatershed.triggered.connect(
+            self.action_ViewWatershed
+        )
 
         parent.m_uiface.tb_layer_append.clicked.connect(self.tb_layer_append_clicked)
         parent.m_uiface.tb_layer_remove.clicked.connect(self.tb_layer_remove_clicked)
 
-        parent.m_uiface.slider_overlay.sliderReleased.connect(self.slider_sliderReleased)
-        parent.m_uiface.slider_r.sliderReleased.connect(self.slider_sliderReleased_color)
-        parent.m_uiface.slider_g.sliderReleased.connect(self.slider_sliderReleased_color)
-        parent.m_uiface.slider_b.sliderReleased.connect(self.slider_sliderReleased_color)
+        parent.m_uiface.slider_overlay.sliderReleased.connect(
+            self.slider_sliderReleased
+        )
+        parent.m_uiface.slider_r.sliderReleased.connect(
+            self.slider_sliderReleased_color
+        )
+        parent.m_uiface.slider_g.sliderReleased.connect(
+            self.slider_sliderReleased_color
+        )
+        parent.m_uiface.slider_b.sliderReleased.connect(
+            self.slider_sliderReleased_color
+        )
 
         parent.m_uiface.lineedit_name.textChanged.connect(self.lineedit_textChanged)
 
-        parent.m_uiface.treewidget_layer.currentItemChanged.connect(self.currentItemChanged)
-        parent.m_uiface.treewidget_layer.itemDoubleClicked.connect(self.itemDoubleClicked)
+        parent.m_uiface.treewidget_layer.currentItemChanged.connect(
+            self.currentItemChanged
+        )
+        parent.m_uiface.treewidget_layer.itemDoubleClicked.connect(
+            self.itemDoubleClicked
+        )
 
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, False)
         self.setFlag(QtWidgets.QGraphicsItem.ItemIsFocusable, False)
@@ -136,8 +150,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def iter_layer(self):
-        """TreeWidget(layer)に設定されているdata取得
-        """
+        """TreeWidget(layer)に設定されているdata取得"""
 
         o_widget = self.m_treewidget_layer
 
@@ -146,16 +159,14 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def iter_pin(self, o_layer):
-        """TreeWidget(pin)に設定されているdata取得
-        """
+        """TreeWidget(pin)に設定されているdata取得"""
 
         for n_pin_index in range(o_layer.childCount()):
             yield o_layer.child(n_pin_index)
 
     # ------------------------------------------------------------------------
     def iter_selected_pin(self):
-        """TreeWidget(pin)に設定されているdata取得
-        """
+        """TreeWidget(pin)に設定されているdata取得"""
 
         o_widget = self.m_treewidget_layer
 
@@ -166,8 +177,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def layer_widget_init(self):
-        """レイヤーの初期化
-        """
+        """レイヤーの初期化"""
 
         self.remove_all_pin()
 
@@ -179,7 +189,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             Qt.QColor(0xFF, 0xFF, 0xFF),
             Qt.QColor(0xFF, 0x00, 0x00),
             Qt.QColor(0x00, 0xFF, 0x00),
-            Qt.QColor(0x00, 0x00, 0xFF)
+            Qt.QColor(0x00, 0x00, 0xFF),
         ]
 
         for n_index, o_color in enumerate(initial_list_color):
@@ -253,46 +263,32 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
     def save(self, wshed_pathname):
         list_savedata = []
         for o_layer in self.iter_layer():
-            dict_layer_info = {
-                "name": o_layer.text(1)
-            }
+            dict_layer_info = {"name": o_layer.text(1)}
             o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
             if o_layer_info is None:
-                dict_layer_info["color"] = {
-                    "r": 0,
-                    "g": 0,
-                    "b": 0
-                }
+                dict_layer_info["color"] = {"r": 0, "g": 0, "b": 0}
             else:
                 dict_layer_info["color"] = {
                     "r": o_layer_info.m_o_color.red(),
                     "g": o_layer_info.m_o_color.green(),
-                    "b": o_layer_info.m_o_color.blue()
+                    "b": o_layer_info.m_o_color.blue(),
                 }
             list_pin = []
             for o_pin in self.iter_pin(o_layer):
                 o_gitem = o_pin.data(0, QtCore.Qt.UserRole)
-                list_pin.append(
-                    {
-                        "x": o_gitem.rect().x(),
-                        "y": o_gitem.rect().y()
-                    }
-                )
+                list_pin.append({"x": o_gitem.rect().x(), "y": o_gitem.rect().y()})
 
             dict_layer_info["list_pin"] = list_pin
 
             list_savedata.append(dict_layer_info)
 
         with open(wshed_pathname, "wb") as h_writer:
-            h_writer.write(
-                yaml.dump(list_savedata, encoding="utf-8")
-            )
+            h_writer.write(yaml.dump(list_savedata, encoding="utf-8"))
             if self.m_wshed_pathname is None:
                 self.m_wshed_pathname = wshed_pathname
 
     def filter_watershed(self):
-        """画像情報の反映処理
-        """
+        """画像情報の反映処理"""
 
         if self.m_parent.m_uiface.action_ViewOriginal.isChecked() is True:
             alpha = 1.0
@@ -308,8 +304,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             self.setPixmap(o_pixmap)
 
     def update_pin(self):
-        """ピン情報の反映処理
-        """
+        """ピン情報の反映処理"""
 
         self.m_o_cvfilter.marker_clear()
 
@@ -318,27 +313,18 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
             for o_pin in self.iter_pin(o_layer):
                 o_gitem = o_pin.data(0, QtCore.Qt.UserRole)
                 o_point = o_gitem.mapToParent(
-                    o_gitem.rect().x() + 8,
-                    o_gitem.rect().y() + 8
+                    o_gitem.rect().x() + 8, o_gitem.rect().y() + 8
                 )
 
                 o_pin.setText(
-                    1,
-                    "Pin(%(x)d, %(y)d)" % {
-                        "x": o_point.x(),
-                        "y": o_point.y()
-                    }
+                    1, "Pin(%(x)d, %(y)d)" % {"x": o_point.x(), "y": o_point.y()}
                 )
 
-                self.m_o_cvfilter.marker_set(
-                    o_point.x(), o_point.y(),
-                    n_layer_index
-                )
+                self.m_o_cvfilter.marker_set(o_point.x(), o_point.y(), n_layer_index)
             n_layer_index += 1
 
     def update_color(self):
-        """カラー情報の反映処理
-        """
+        """カラー情報の反映処理"""
 
         list_color = []
 
@@ -382,25 +368,19 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
         else:
             o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
 
-            o_gitem = CGPinItem(
-                o_pos.x() - 8, o_pos.y() - 8, 16, 16
-            )
+            o_gitem = CGPinItem(o_pos.x() - 8, o_pos.y() - 8, 16, 16)
             o_gitem.setPen(o_layer_info.m_pin_pen)
             o_gitem.setBrush(o_layer_info.m_pin_brush)
             o_gitem.setParentItem(self)
             o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsMovable, True)
             o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsSelectable, True)
             o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemIsFocusable, False)
-#            o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemSendsScenePositionChanges, True)
-#            o_gitem.installSceneEventFilter(self)
+            #            o_gitem.setFlag(QtWidgets.QGraphicsItem.ItemSendsScenePositionChanges, True)
+            #            o_gitem.installSceneEventFilter(self)
 
             o_pin = QtWidgets.QTreeWidgetItem()
             o_pin.setText(1, "Pin")
-            o_pin.setData(
-                0,
-                QtCore.Qt.UserRole,
-                o_gitem
-            )
+            o_pin.setData(0, QtCore.Qt.UserRole, o_gitem)
 
             o_layer.addChild(o_pin)
 
@@ -466,9 +446,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
         o_widget = self.m_treewidget_layer
 
-        o_layer_info = CLayerInformation(
-            Qt.QColor(0xFF, 0x00, 0x00)
-        )
+        o_layer_info = CLayerInformation(Qt.QColor(0xFF, 0x00, 0x00))
 
         o_layer = QtWidgets.QTreeWidgetItem()
         o_layer.setText(0, "")
@@ -520,7 +498,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                     Qt.QColor(
                         self.m_parent.m_uiface.slider_r.value(),
                         self.m_parent.m_uiface.slider_g.value(),
-                        self.m_parent.m_uiface.slider_b.value()
+                        self.m_parent.m_uiface.slider_b.value(),
                     )
                 )
 
@@ -530,8 +508,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def action_FileOpen(self):
-        """ファイル入力
-        """
+        """ファイル入力"""
 
         o_dlg = QtWidgets.QFileDialog(self.m_parent)
         o_dlg.setWindowModality(QtCore.Qt.WindowModal)
@@ -556,7 +533,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                             o_color = Qt.QColor(
                                 dict_layer_info["color"]["r"],
                                 dict_layer_info["color"]["g"],
-                                dict_layer_info["color"]["b"]
+                                dict_layer_info["color"]["b"],
                             )
 
                             o_layer = QtWidgets.QTreeWidgetItem()
@@ -593,15 +570,17 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def action_FileSave(self):
-        if self.m_wshed_pathname is not None and os.path.exists(self.m_wshed_pathname) is True:
+        if (
+            self.m_wshed_pathname is not None
+            and os.path.exists(self.m_wshed_pathname) is True
+        ):
             self.save(self.m_wshed_pathname)
         else:
             self.action_FileSaveAs()
 
     # ------------------------------------------------------------------------
     def action_FileSaveAs(self):
-        """ファイル出力
-        """
+        """ファイル出力"""
 
         o_dlg = QtWidgets.QFileDialog(self.m_parent)
         o_dlg.setWindowModality(QtCore.Qt.WindowModal)
@@ -620,8 +599,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def action_FileImportPicture(self):
-        """画像の読み込み処理
-        """
+        """画像の読み込み処理"""
 
         o_dlg = QtWidgets.QFileDialog(self.m_parent)
         o_dlg.setWindowModality(QtCore.Qt.WindowModal)
@@ -640,8 +618,7 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
     # ------------------------------------------------------------------------
     def action_FileExportPicture(self):
-        """ファイル出力
-        """
+        """ファイル出力"""
         o_dlg = QtWidgets.QFileDialog(self.m_parent)
         o_dlg.setWindowModality(QtCore.Qt.WindowModal)
         o_dlg.setNameFilter("Picture files (*.jpg *.jpeg *.png)")
@@ -653,9 +630,15 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                 for pathname in o_dlg.selectedFiles():
                     _, ext = os.path.splitext(pathname)
                     if ext.lower() in (".jpg", ".jpeg", ".png"):
-                        if self.m_parent.m_uiface.action_ViewOriginal.isChecked() is True:
+                        if (
+                            self.m_parent.m_uiface.action_ViewOriginal.isChecked()
+                            is True
+                        ):
                             alpha = 1.0
-                        elif self.m_parent.m_uiface.action_ViewOverlay.isChecked() is True:
+                        elif (
+                            self.m_parent.m_uiface.action_ViewOverlay.isChecked()
+                            is True
+                        ):
                             alpha = (100 - self.m_n_overlay_alpha) / 100.0
                         else:
                             alpha = 0.0
@@ -713,9 +696,15 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
 
                 self.m_parent.m_uiface.lineedit_name.setText(o_layer.text(1))
 
-                self.m_parent.m_uiface.slider_r.setSliderPosition(o_layer_info.m_o_color.red())
-                self.m_parent.m_uiface.slider_g.setSliderPosition(o_layer_info.m_o_color.green())
-                self.m_parent.m_uiface.slider_b.setSliderPosition(o_layer_info.m_o_color.blue())
+                self.m_parent.m_uiface.slider_r.setSliderPosition(
+                    o_layer_info.m_o_color.red()
+                )
+                self.m_parent.m_uiface.slider_g.setSliderPosition(
+                    o_layer_info.m_o_color.green()
+                )
+                self.m_parent.m_uiface.slider_b.setSliderPosition(
+                    o_layer_info.m_o_color.blue()
+                )
 
         if current is not None:
             o_item = current.data(0, QtCore.Qt.UserRole)
@@ -727,7 +716,6 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                             o_pin_data.setSelected(False)
 
                 o_item.setSelected(True)
-
 
     def itemDoubleClicked(self, item, column):
         o_item = item.data(0, QtCore.Qt.UserRole)
@@ -754,7 +742,6 @@ class CGWatershedItem(QtWidgets.QGraphicsPixmapItem):
                 self.filter_watershed()
 
 
-# ============================================================================
 def edit_layer_information_color(parent, o_layer):
 
     o_layer_info = o_layer.data(0, QtCore.Qt.UserRole)
@@ -774,7 +761,6 @@ def edit_layer_information_color(parent, o_layer):
         return False
 
 
-# ============================================================================
 def conv_cvimage_to_pixmap(cvimage_src):
     """OpenCV画像からQPixmapに変換
 
@@ -790,14 +776,10 @@ def conv_cvimage_to_pixmap(cvimage_src):
         cvimage_dst.shape[1],
         cvimage_dst.shape[0],
         cvimage_dst.shape[1] * 3,
-        Qt.QImage.Format_RGB888
+        Qt.QImage.Format_RGB888,
     )
 
     result_o_pixmap = QtGui.QPixmap()
     result_o_pixmap.convertFromImage(o_image)
 
     return result_o_pixmap
-
-
-
-# [EOF]
